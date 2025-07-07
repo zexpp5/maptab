@@ -1,15 +1,38 @@
 # MapTab - Chrome New Tab Extension
 
-A modern Chrome extension that transforms your new tab page into a productivity hub with integrated search engines, bookmarks, and recent posts. Built with Vue.js and modern web technologies.
+A modern Chrome extension that transforms your new tab page into a comprehensive productivity hub with integrated search engines, AI models, bookmarks, and browser history. Built with Vue.js and modern web technologies.
 
 ## 🚀 Features
 
-- **Integrated Search Engines**: Quick access to multiple search engines from your new tab
-- **Smart Bookmarks**: Organize and access your favorite sites efficiently
-- **Recent Posts**: Stay updated with your latest content and feeds
-- **Customizable Interface**: Personalize your new tab experience
-- **Modern UI**: Clean, responsive design built with Element UI
-- **Fast Performance**: Optimized for speed and efficiency
+### 🔍 **Multi-Platform Search**
+- **Search Engines**: Google, Kagi, Perplexity, V2EX, 小红书 (Xiaohongshu), 淘宝 (Taobao), 知乎 (Zhihu)
+- **AI Models**: Claude Sonnet 4, o3, GPT-4.1, GPT-4.1-mini via Poe
+- **Smart Input**: Multi-line textarea that expands for longer queries and prompts
+- **Quick Access**: One-click search across multiple platforms
+
+### 📚 **Smart Bookmark Management**
+- **Hierarchical Display**: Expandable folder structure matching Chrome's organization
+- **Visual Indicators**: Folder icons, document icons, and expand/collapse arrows
+- **Click to Expand**: Interactive folders that show/hide their contents
+- **Direct Access**: Click any bookmark to open in a new tab
+
+### 📖 **Browser History Integration**
+- **Recent History**: Display your recent browsing history
+- **Visit Counts**: Show how many times you've visited each page
+- **Smart Timestamps**: Relative time display (e.g., "2h ago", "3d ago")
+- **Quick Access**: Click any history item to revisit
+
+### 🎨 **Modern Interface**
+- **Two-Screen Layout**: Main content + blank second screen for future features
+- **Glass Morphism**: Beautiful semi-transparent design with backdrop blur
+- **Responsive Design**: Adapts to different screen sizes
+- **Smooth Animations**: Hover effects and transitions throughout
+
+### ⚡ **Performance & UX**
+- **Fast Loading**: Optimized for quick startup
+- **Scrollable Panes**: Independent scrolling for bookmarks and history
+- **Keyboard Shortcuts**: Enter for search, Shift+Enter for new lines
+- **Auto-resize Input**: Dynamic textarea that grows with content
 
 ## 🛠️ Tech Stack
 
@@ -19,7 +42,7 @@ A modern Chrome extension that transforms your new tab page into a productivity 
 - **Styling**: SCSS with modern CSS features
 - **Build Tool**: Webpack 3.8.1
 - **Package Manager**: Yarn
-- **Database**: PouchDB (for local storage)
+- **Chrome APIs**: Bookmarks, History, Tabs
 
 ## 📁 Project Structure
 
@@ -75,6 +98,25 @@ maptab/
    - Click "Load unpacked"
    - Select the `core/build` folder from your project
 
+## 🎯 How to Use
+
+### **Search & AI Prompts**
+1. **Type your query** in the search box (supports multi-line text)
+2. **Choose your platform**:
+   - **Search Engines**: Click Google, Kagi, Perplexity, etc.
+   - **AI Models**: Click Claude, o3, GPT-4.1, etc.
+3. **Results open in new tabs** automatically
+
+### **Bookmarks**
+1. **Browse your folders** - click to expand/collapse
+2. **See all bookmarks** in their organized structure
+3. **Click any bookmark** to open it in a new tab
+
+### **History**
+1. **View recent pages** you've visited
+2. **See visit counts** and timestamps
+3. **Click any item** to revisit the page
+
 ## 🛠️ Development
 
 ### Available Scripts
@@ -103,10 +145,10 @@ maptab/
 
 ### 🎯 New Tab Page (`src/tab/`)
 The main interface that appears when you open a new tab. Features:
-- Integrated search functionality
-- Bookmark management
-- Recent posts display
-- Customizable widgets
+- **Search Section**: Multi-engine search with AI model integration
+- **Bookmark Pane**: Hierarchical, expandable bookmark display
+- **History Pane**: Recent browsing history with visit counts
+- **Two-Screen Layout**: Main content + blank second screen
 
 ### 🔧 Options Page (`src/options/`)
 Allows users to customize the extension behavior:
@@ -138,17 +180,27 @@ Background processes that handle:
 
 ### Adding New Search Engines
 
-Edit the search configuration in your Vue components to add new search engines:
+Edit the search methods in `src/tab/root.vue`:
 
 ```javascript
-// Example search engine configuration
-const searchEngines = {
-  google: {
-    name: 'Google',
-    url: 'https://www.google.com/search?q=',
-    icon: 'google-icon.png'
-  },
-  // Add more engines here
+// Example: Adding a new search engine
+searchNewEngine () {
+  if (this.searchQuery.trim()) {
+    chrome.tabs.create({ url: `https://newengine.com/search?q=${encodeURIComponent(this.searchQuery)}` })
+  }
+}
+```
+
+### Adding New AI Models
+
+Add new AI model buttons and methods:
+
+```javascript
+// Example: Adding a new AI model
+searchNewAI () {
+  if (this.searchQuery.trim()) {
+    chrome.tabs.create({ url: `https://poe.com/NewModel?prompt=${encodeURIComponent(this.searchQuery)}` })
+  }
 }
 ```
 
@@ -180,12 +232,17 @@ The project uses SCSS for styling. Main style files are located in each componen
 **Extension not loading:**
 - Ensure you're loading from the `core/build/` directory
 - Check Chrome's extension page for error messages
-- Verify all permissions are granted
+- Verify all permissions are granted (bookmarks, history, tabs)
 
 **Changes not appearing:**
 - Reload the extension in Chrome's extension page
 - Clear browser cache if needed
 - Check the browser console for errors
+
+**Search not working:**
+- Ensure the extension has the necessary permissions
+- Check that the search URLs are correct
+- Verify the Chrome APIs are accessible
 
 ## 🤝 Contributing
 
@@ -201,9 +258,10 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🙏 Acknowledgments
 
-- Built with [Vue.js](https://vuejs.org/)
-- UI components from [Element UI](https://element.eleme.io/)
-- Chrome Extension development tools and templates
+- **Vue.js** for the reactive framework
+- **Element UI** for the component library
+- **Chrome Extensions API** for browser integration
+- **Poe** for AI model access
 
 ## 📞 Support
 
