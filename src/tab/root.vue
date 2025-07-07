@@ -6,31 +6,50 @@
           .header-info
             h1 MapTab
             p Your Productivity Hub
-          input.search-input(
-            v-model="searchQuery"
-            @keyup.enter="searchGoogle"
-            placeholder="Search the web..."
-            type="text"
-          )
+                  textarea.search-input(
+          v-model="searchQuery"
+          @keydown.enter.prevent="handleEnter"
+          placeholder="Search the web or compose AI prompts..."
+          rows="1"
+          ref="searchInput"
+          @input="autoResize"
+        )
           .search-buttons
-            button.search-btn.google(@click="searchGoogle")
-              i.el-icon-search
-              span Google
-            button.search-btn.kagi(@click="searchKagi")
-              i.el-icon-search
-              span Kagi
-            button.search-btn.perplexity(@click="searchPerplexity")
-              i.el-icon-search
-              span Perplexity
-            button.search-btn.xiaohongshu(@click="searchXiaohongshu")
-              i.el-icon-search
-              span 小红书
-            button.search-btn.taobao(@click="searchTaobao")
-              i.el-icon-search
-              span 淘宝
-            button.search-btn.zhihu(@click="searchZhihu")
-              i.el-icon-search
-              span 知乎
+            .search-engines
+              button.search-btn.google(@click="searchGoogle")
+                i.el-icon-search
+                span Google
+              button.search-btn.kagi(@click="searchKagi")
+                i.el-icon-search
+                span Kagi
+              button.search-btn.perplexity(@click="searchPerplexity")
+                i.el-icon-search
+                span Perplexity
+              button.search-btn.v2ex(@click="searchV2ex")
+                i.el-icon-search
+                span V2EX
+              button.search-btn.xiaohongshu(@click="searchXiaohongshu")
+                i.el-icon-search
+                span 小红书
+              button.search-btn.taobao(@click="searchTaobao")
+                i.el-icon-search
+                span 淘宝
+              button.search-btn.zhihu(@click="searchZhihu")
+                i.el-icon-search
+                span 知乎
+            .ai-models
+              button.search-btn.claude(@click="searchClaude")
+                i.el-icon-chat-dot-round
+                span Claude
+              button.search-btn.o3(@click="searchO3")
+                i.el-icon-chat-dot-round
+                span o3
+              button.search-btn.gpt4(@click="searchGPT4")
+                i.el-icon-chat-dot-round
+                span GPT-4.1
+              button.search-btn.gpt4mini(@click="searchGPT4Mini")
+                i.el-icon-chat-dot-round
+                span GPT-4.1-mini
 
       .content
         .panes-container
@@ -305,6 +324,12 @@ export default {
       }
     },
 
+    searchV2ex () {
+      if (this.searchQuery.trim()) {
+        chrome.tabs.create({ url: `https://www.google.com/search?q=site:v2ex.com/t%20${encodeURIComponent(this.searchQuery)}` })
+      }
+    },
+
     searchXiaohongshu () {
       if (this.searchQuery.trim()) {
         chrome.tabs.create({ url: `https://www.xiaohongshu.com/search_result?keyword=${encodeURIComponent(this.searchQuery)}` })
@@ -321,6 +346,49 @@ export default {
       if (this.searchQuery.trim()) {
         chrome.tabs.create({ url: `https://www.zhihu.com/search?q=${encodeURIComponent(this.searchQuery)}` })
       }
+    },
+
+    searchClaude () {
+      if (this.searchQuery.trim()) {
+        chrome.tabs.create({ url: `https://poe.com/Claude-Sonnet-4?prompt=${encodeURIComponent(this.searchQuery)}` })
+      }
+    },
+
+    searchO3 () {
+      if (this.searchQuery.trim()) {
+        chrome.tabs.create({ url: `https://poe.com/o3?prompt=${encodeURIComponent(this.searchQuery)}` })
+      }
+    },
+
+    searchGPT4 () {
+      if (this.searchQuery.trim()) {
+        chrome.tabs.create({ url: `https://poe.com/GPT-4.1?prompt=${encodeURIComponent(this.searchQuery)}` })
+      }
+    },
+
+    searchGPT4Mini () {
+      if (this.searchQuery.trim()) {
+        chrome.tabs.create({ url: `https://poe.com/GPT-4.1-mini?prompt=${encodeURIComponent(this.searchQuery)}` })
+      }
+    },
+
+    autoResize () {
+      this.$nextTick(() => {
+        const textarea = this.$refs.searchInput
+        if (textarea) {
+          textarea.style.height = 'auto'
+          textarea.style.height = textarea.scrollHeight + 'px'
+        }
+      })
+    },
+
+    handleEnter (event) {
+      if (event.shiftKey) {
+        // Allow Shift+Enter for new line
+        return
+      }
+      // Regular Enter triggers Google search
+      this.searchGoogle()
     }
   }
 }
@@ -375,7 +443,7 @@ export default {
 
   .search-section {
     margin-bottom: 40px;
-    max-width: 1200px;
+    max-width: 1600px;
     margin-left: auto;
     margin-right: auto;
 
@@ -413,7 +481,9 @@ export default {
         }
 
       .search-input {
-        flex: 1;
+        flex: 2;
+        min-width: 600px;
+        width: 600px;
         padding: 15px 20px;
         border: none;
         border-radius: 10px;
@@ -422,6 +492,10 @@ export default {
         color: #333;
         outline: none;
         transition: all 0.3s ease;
+        resize: none;
+        overflow: hidden;
+        font-family: inherit;
+        line-height: 1.4;
 
         &:focus {
           background: white;
@@ -435,8 +509,21 @@ export default {
 
       .search-buttons {
         display: flex;
-        gap: 8px;
-        flex-wrap: wrap;
+        flex-direction: column;
+        gap: 10px;
+        flex-shrink: 0;
+
+        .search-engines {
+          display: flex;
+          gap: 6px;
+          flex-wrap: nowrap;
+        }
+
+        .ai-models {
+          display: flex;
+          gap: 6px;
+          flex-wrap: nowrap;
+        }
 
         .search-btn {
           display: flex;
@@ -479,6 +566,10 @@ export default {
             background: linear-gradient(135deg, #06b6d4, #0891b2);
           }
 
+          &.v2ex:hover {
+            background: linear-gradient(135deg, #10b981, #059669);
+          }
+
           &.xiaohongshu:hover {
             background: linear-gradient(135deg, #ef4444, #dc2626);
           }
@@ -489,6 +580,29 @@ export default {
 
           &.zhihu:hover {
             background: linear-gradient(135deg, #10b981, #059669);
+          }
+        }
+
+        .ai-models {
+          .search-btn {
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+
+            &.claude:hover {
+              background: linear-gradient(135deg, #ff6b35, #f7931e);
+            }
+
+            &.o3:hover {
+              background: linear-gradient(135deg, #667eea, #764ba2);
+            }
+
+            &.gpt4:hover {
+              background: linear-gradient(135deg, #10a37f, #0d8a6a);
+            }
+
+            &.gpt4mini:hover {
+              background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+            }
           }
         }
       }
