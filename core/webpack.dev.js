@@ -10,7 +10,7 @@ const [backgroundConfig, mainConfig] = baseWebpack
 // Development config for background service worker
 const backgroundDevConfig = merge(backgroundConfig, {
   watch: true,
-  devtool: '#cheap-module-eval-source-map',
+  devtool: 'source-map',
   plugins: [
     new webpack.DefinePlugin({
       'process.env.NODE_ENV': '"development"'
@@ -24,7 +24,7 @@ const mainDevConfig = merge(mainConfig, {
   module: {
     rules: styleLoaders({ sourceMap: false })
   },
-  devtool: '#cheap-module-eval-source-map',
+  devtool: 'source-map',
   plugins: [
     new webpack.NoEmitOnErrorsPlugin(),
     new webpack.DefinePlugin({
