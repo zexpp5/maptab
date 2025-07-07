@@ -15,7 +15,8 @@ module.exports = {
     'notifications',
     'identity',
     'identity.email',
-    'bookmarks'
+    'bookmarks',
+    'history'
   ],
   chrome_url_overrides: {
     'newtab': 'pages/app.html'
