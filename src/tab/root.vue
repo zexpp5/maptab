@@ -15,12 +15,40 @@
               .bookmark-item(
                 v-for="bookmark in allBookmarks"
                 :key="bookmark.id"
+                :class="{ 'is-folder': bookmark.children && bookmark.children.length > 0, 'is-expanded': expandedFolders.includes(bookmark.id) }"
                 @click="handleBookmarkClick(bookmark)"
               )
-                i.el-icon-folder(v-if="bookmark.children && bookmark.children.length > 0")
-                i.el-icon-document(v-else)
-                span.bookmark-title {{ bookmark.title }}
-                span.bookmark-url(v-if="bookmark.url") {{ bookmark.url }}
+                .bookmark-content
+                  i.el-icon-folder(v-if="bookmark.children && bookmark.children.length > 0")
+                  i.el-icon-document(v-else)
+                  span.bookmark-title {{ bookmark.title }}
+                  span.bookmark-url(v-if="bookmark.url") {{ bookmark.url }}
+                  i.expand-icon.el-icon-arrow-right(v-if="bookmark.children && bookmark.children.length > 0")
+                .bookmark-children(v-if="bookmark.children && bookmark.children.length > 0 && expandedFolders.includes(bookmark.id)")
+                  .bookmark-item(
+                    v-for="child in bookmark.children"
+                    :key="child.id"
+                    class="child-item"
+                    @click.stop="handleBookmarkClick(child)"
+                  )
+                    .bookmark-content
+                      i.el-icon-folder(v-if="child.children && child.children.length > 0")
+                      i.el-icon-document(v-else)
+                      span.bookmark-title {{ child.title }}
+                      span.bookmark-url(v-if="child.url") {{ child.url }}
+                      i.expand-icon.el-icon-arrow-right(v-if="child.children && child.children.length > 0")
+                    .bookmark-children(v-if="child.children && child.children.length > 0 && expandedFolders.includes(child.id)")
+                      .bookmark-item(
+                        v-for="grandchild in child.children"
+                        :key="grandchild.id"
+                        class="grandchild-item"
+                        @click.stop="handleBookmarkClick(grandchild)"
+                      )
+                        .bookmark-content
+                          i.el-icon-folder(v-if="grandchild.children && grandchild.children.length > 0")
+                          i.el-icon-document(v-else)
+                          span.bookmark-title {{ grandchild.title }}
+                          span.bookmark-url(v-if="grandchild.url") {{ grandchild.url }}
 
         .pane.history-pane
           .history-section
@@ -47,7 +75,8 @@
 export default {
   data: () => ({
     allBookmarks: [],
-    allHistory: []
+    allHistory: [],
+    expandedFolders: []
   }),
 
   computed: {},
@@ -68,8 +97,8 @@ export default {
         const bookmarks = await chrome.bookmarks.getTree()
         console.log('MapTab: Raw bookmarks data:', bookmarks)
 
-        this.allBookmarks = this.flattenBookmarks(bookmarks)
-        console.log('MapTab: Flattened bookmarks:', this.allBookmarks)
+        this.allBookmarks = this.processBookmarks(bookmarks)
+        console.log('MapTab: Processed bookmarks tree:', this.allBookmarks)
       } catch (error) {
         console.error('MapTab: Error loading bookmarks:', error)
       }
@@ -129,39 +158,73 @@ export default {
       }
     },
 
-    flattenBookmarks (bookmarks) {
-      const flattened = []
-
-      const processNode = (node) => {
-        if (node.title) {
-          flattened.push({
-            id: node.id,
-            title: node.title,
-            url: node.url || null,
-            children: node.children || null
-          })
-        }
-
-        if (node.children && node.children.length > 0) {
-          node.children.forEach(child => processNode(child))
-        }
-      }
+    processBookmarks (bookmarks) {
+      // Chrome bookmarks.getTree() returns an array with root nodes
+      // We need to extract the actual bookmark folders from the root
+      const processedBookmarks = []
 
       bookmarks.forEach(rootNode => {
         if (rootNode.children && rootNode.children.length > 0) {
+          // Process each root-level folder (Bookmarks Bar, Other Bookmarks, etc.)
           rootNode.children.forEach(folder => {
-            processNode(folder)
+            if (folder.title && folder.children) {
+              // Only include folders that have a title and children
+              const processedFolder = this.processBookmarkNode(folder)
+              if (processedFolder.children && processedFolder.children.length > 0) {
+                processedBookmarks.push(processedFolder)
+              }
+            }
           })
         }
       })
 
-      return flattened
+      return processedBookmarks
+    },
+
+    processBookmarkNode (node) {
+      // Skip nodes without a title (usually root nodes)
+      if (!node.title) {
+        return null
+      }
+
+      const processed = {
+        id: node.id,
+        title: node.title,
+        url: node.url || null
+      }
+
+      // Process children if they exist
+      if (node.children && node.children.length > 0) {
+        const processedChildren = node.children
+          .map(child => this.processBookmarkNode(child))
+          .filter(child => child !== null) // Remove null entries
+
+        if (processedChildren.length > 0) {
+          processed.children = processedChildren
+        }
+      }
+
+      return processed
     },
 
     handleBookmarkClick (bookmark) {
-      if (bookmark.url) {
+      if (bookmark.children && bookmark.children.length > 0) {
+        // Toggle folder expansion
+        this.toggleFolder(bookmark.id)
+      } else if (bookmark.url) {
         // Open bookmark in new tab
         chrome.tabs.create({ url: bookmark.url })
+      }
+    },
+
+    toggleFolder (folderId) {
+      const index = this.expandedFolders.indexOf(folderId)
+      if (index > -1) {
+        // Remove from expanded folders (collapse)
+        this.expandedFolders.splice(index, 1)
+      } else {
+        // Add to expanded folders (expand)
+        this.expandedFolders.push(folderId)
       }
     },
 
@@ -258,11 +321,7 @@ export default {
       .bookmarks-pane {
         .bookmarks-list {
           .bookmark-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px 16px;
-            margin: 4px 0;
+            margin: 2px 0;
             border-radius: 8px;
             cursor: pointer;
             transition: all 0.3s ease;
@@ -270,40 +329,87 @@ export default {
 
             &:hover {
               background: rgba(255, 255, 255, 0.15);
-              transform: translateX(4px);
             }
 
-            i {
-              font-size: 18px;
-              flex-shrink: 0;
-              width: 20px;
-              text-align: center;
-
-              &.el-icon-folder {
-                color: #ffd700;
-              }
-
-              &.el-icon-document {
-                color: #87ceeb;
+            &.is-folder {
+              background: rgba(255, 255, 255, 0.08);
+              
+              &:hover {
+                background: rgba(255, 255, 255, 0.18);
               }
             }
 
-            .bookmark-title {
-              flex: 1;
-              font-weight: 500;
-              overflow: hidden;
-              text-overflow: ellipsis;
-              white-space: nowrap;
+            &.is-expanded {
+              .expand-icon {
+                transform: rotate(90deg);
+              }
             }
 
-            .bookmark-url {
-              font-size: 0.85em;
-              opacity: 0.7;
-              max-width: 200px;
-              overflow: hidden;
-              text-overflow: ellipsis;
-              white-space: nowrap;
-              flex-shrink: 0;
+            .bookmark-content {
+              display: flex;
+              align-items: center;
+              gap: 12px;
+              padding: 12px 16px;
+
+              i {
+                font-size: 18px;
+                flex-shrink: 0;
+                width: 20px;
+                text-align: center;
+
+                &.el-icon-folder {
+                  color: #ffd700;
+                }
+
+                &.el-icon-document {
+                  color: #87ceeb;
+                }
+
+                &.expand-icon {
+                  transition: transform 0.3s ease;
+                  color: rgba(255, 255, 255, 0.7);
+                }
+              }
+
+              .bookmark-title {
+                flex: 1;
+                font-weight: 500;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+              }
+
+              .bookmark-url {
+                font-size: 0.85em;
+                opacity: 0.7;
+                max-width: 200px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                flex-shrink: 0;
+              }
+            }
+
+            .bookmark-children {
+              border-left: 2px solid rgba(255, 255, 255, 0.1);
+              margin-left: 20px;
+              padding-left: 10px;
+
+              .bookmark-item {
+                &.child-item {
+                  margin-left: 10px;
+                  
+                  .bookmark-children {
+                    margin-left: 30px;
+                    
+                    .bookmark-item {
+                      &.grandchild-item {
+                        margin-left: 10px;
+                      }
+                    }
+                  }
+                }
+              }
             }
           }
         }
