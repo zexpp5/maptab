@@ -1,5 +1,7 @@
 # MapTab - Chrome New Tab Extension
 
+[English](README.md) | [中文](README.zh.md) | [日本語](README.ja.md) | [Français](README.fr.md) | [Español](README.es.md) | [Русский](README.ru.md)
+
 A modern Chrome extension that transforms your new tab page into a comprehensive productivity hub with integrated search engines, AI models, bookmarks, and browser history. Built with Vue.js and modern web technologies.
 
 ## 🚀 Features
