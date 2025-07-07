@@ -1,101 +1,107 @@
 <template lang="pug">
   .maptab-container
-    .search-section
-      .search-container
-        .header-info
-          h1 MapTab
-          p Your Productivity Hub
-        input.search-input(
-          v-model="searchQuery"
-          @keyup.enter="searchGoogle"
-          placeholder="Search the web..."
-          type="text"
-        )
-        .search-buttons
-          button.search-btn.google(@click="searchGoogle")
-            i.el-icon-search
-            span Google
-          button.search-btn.kagi(@click="searchKagi")
-            i.el-icon-search
-            span Kagi
-          button.search-btn.perplexity(@click="searchPerplexity")
-            i.el-icon-search
-            span Perplexity
-          button.search-btn.xiaohongshu(@click="searchXiaohongshu")
-            i.el-icon-search
-            span 小红书
-          button.search-btn.taobao(@click="searchTaobao")
-            i.el-icon-search
-            span 淘宝
-          button.search-btn.zhihu(@click="searchZhihu")
-            i.el-icon-search
-            span 知乎
+    .screen.first-screen
+      .search-section
+        .search-container
+          .header-info
+            h1 MapTab
+            p Your Productivity Hub
+          input.search-input(
+            v-model="searchQuery"
+            @keyup.enter="searchGoogle"
+            placeholder="Search the web..."
+            type="text"
+          )
+          .search-buttons
+            button.search-btn.google(@click="searchGoogle")
+              i.el-icon-search
+              span Google
+            button.search-btn.kagi(@click="searchKagi")
+              i.el-icon-search
+              span Kagi
+            button.search-btn.perplexity(@click="searchPerplexity")
+              i.el-icon-search
+              span Perplexity
+            button.search-btn.xiaohongshu(@click="searchXiaohongshu")
+              i.el-icon-search
+              span 小红书
+            button.search-btn.taobao(@click="searchTaobao")
+              i.el-icon-search
+              span 淘宝
+            button.search-btn.zhihu(@click="searchZhihu")
+              i.el-icon-search
+              span 知乎
 
-    .content
-      .panes-container
-        .pane.bookmarks-pane
-          .bookmarks-section
-            h2 Bookmarks ({{ allBookmarks.length }} items)
-            .debug-info(v-if="allBookmarks.length === 0")
-              p Loading bookmarks...
-            .bookmarks-list(v-else)
-              .bookmark-item(
-                v-for="bookmark in allBookmarks"
-                :key="bookmark.id"
-                :class="{ 'is-folder': bookmark.children && bookmark.children.length > 0, 'is-expanded': expandedFolders.includes(bookmark.id) }"
-                @click="handleBookmarkClick(bookmark)"
-              )
-                .bookmark-content
-                  i.el-icon-folder(v-if="bookmark.children && bookmark.children.length > 0")
-                  i.el-icon-document(v-else)
-                  span.bookmark-title {{ bookmark.title }}
-                  span.bookmark-url(v-if="bookmark.url") {{ bookmark.url }}
-                  i.expand-icon.el-icon-arrow-right(v-if="bookmark.children && bookmark.children.length > 0")
-                .bookmark-children(v-if="bookmark.children && bookmark.children.length > 0 && expandedFolders.includes(bookmark.id)")
-                  .bookmark-item(
-                    v-for="child in bookmark.children"
-                    :key="child.id"
-                    class="child-item"
-                    @click.stop="handleBookmarkClick(child)"
-                  )
-                    .bookmark-content
-                      i.el-icon-folder(v-if="child.children && child.children.length > 0")
-                      i.el-icon-document(v-else)
-                      span.bookmark-title {{ child.title }}
-                      span.bookmark-url(v-if="child.url") {{ child.url }}
-                      i.expand-icon.el-icon-arrow-right(v-if="child.children && child.children.length > 0")
-                    .bookmark-children(v-if="child.children && child.children.length > 0 && expandedFolders.includes(child.id)")
-                      .bookmark-item(
-                        v-for="grandchild in child.children"
-                        :key="grandchild.id"
-                        class="grandchild-item"
-                        @click.stop="handleBookmarkClick(grandchild)"
-                      )
-                        .bookmark-content
-                          i.el-icon-folder(v-if="grandchild.children && grandchild.children.length > 0")
-                          i.el-icon-document(v-else)
-                          span.bookmark-title {{ grandchild.title }}
-                          span.bookmark-url(v-if="grandchild.url") {{ grandchild.url }}
+      .content
+        .panes-container
+          .pane.bookmarks-pane
+            .bookmarks-section
+              h2 Bookmarks ({{ allBookmarks.length }} items)
+              .debug-info(v-if="allBookmarks.length === 0")
+                p Loading bookmarks...
+              .bookmarks-list(v-else)
+                .bookmark-item(
+                  v-for="bookmark in allBookmarks"
+                  :key="bookmark.id"
+                  :class="{ 'is-folder': bookmark.children && bookmark.children.length > 0, 'is-expanded': expandedFolders.includes(bookmark.id) }"
+                  @click="handleBookmarkClick(bookmark)"
+                )
+                  .bookmark-content
+                    i.el-icon-folder(v-if="bookmark.children && bookmark.children.length > 0")
+                    i.el-icon-document(v-else)
+                    span.bookmark-title {{ bookmark.title }}
+                    span.bookmark-url(v-if="bookmark.url") {{ bookmark.url }}
+                    i.expand-icon.el-icon-arrow-right(v-if="bookmark.children && bookmark.children.length > 0")
+                  .bookmark-children(v-if="bookmark.children && bookmark.children.length > 0 && expandedFolders.includes(bookmark.id)")
+                    .bookmark-item(
+                      v-for="child in bookmark.children"
+                      :key="child.id"
+                      class="child-item"
+                      @click.stop="handleBookmarkClick(child)"
+                    )
+                      .bookmark-content
+                        i.el-icon-folder(v-if="child.children && child.children.length > 0")
+                        i.el-icon-document(v-else)
+                        span.bookmark-title {{ child.title }}
+                        span.bookmark-url(v-if="child.url") {{ child.url }}
+                        i.expand-icon.el-icon-arrow-right(v-if="child.children && child.children.length > 0")
+                      .bookmark-children(v-if="child.children && child.children.length > 0 && expandedFolders.includes(child.id)")
+                        .bookmark-item(
+                          v-for="grandchild in child.children"
+                          :key="grandchild.id"
+                          class="grandchild-item"
+                          @click.stop="handleBookmarkClick(grandchild)"
+                        )
+                          .bookmark-content
+                            i.el-icon-folder(v-if="grandchild.children && grandchild.children.length > 0")
+                            i.el-icon-document(v-else)
+                            span.bookmark-title {{ grandchild.title }}
+                            span.bookmark-url(v-if="grandchild.url") {{ grandchild.url }}
 
-        .pane.history-pane
-          .history-section
-            h2 History ({{ allHistory.length }} items)
-            .debug-info(v-if="allHistory.length === 0")
-              p Loading history...
-            .history-list(v-else)
-              .history-item(
-                v-for="history in allHistory"
-                :key="history.id"
-                @click="handleHistoryClick(history)"
-              )
-                i.el-icon-document
-                .history-content
-                  .history-main
-                    span.history-title {{ history.title }}
-                    span.history-time {{ formatTime(history.lastVisitTime) }}
-                  .history-details
-                    span.history-url {{ history.url }}
-                    span.history-visits(v-if="history.visitCount") ({{ history.visitCount }} visits)
+          .pane.history-pane
+            .history-section
+              h2 History ({{ allHistory.length }} items)
+              .debug-info(v-if="allHistory.length === 0")
+                p Loading history...
+              .history-list(v-else)
+                .history-item(
+                  v-for="history in allHistory"
+                  :key="history.id"
+                  @click="handleHistoryClick(history)"
+                )
+                  i.el-icon-document
+                  .history-content
+                    .history-main
+                      span.history-title {{ history.title }}
+                      span.history-time {{ formatTime(history.lastVisitTime) }}
+                    .history-details
+                      span.history-url {{ history.url }}
+                      span.history-visits(v-if="history.visitCount") ({{ history.visitCount }} visits)
+
+    .screen.second-screen
+      .blank-content
+        h2 Second Screen
+        p This is a blank screen for future content
 </template>
 
 <script>
@@ -322,11 +328,50 @@ export default {
 
 <style lang="scss">
 .maptab-container {
-  padding: 20px;
   font-family: 'Roboto', sans-serif;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  min-height: 100vh;
   color: white;
+
+  .screen {
+    min-height: 100vh;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+
+    &.first-screen {
+      .content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+      }
+    }
+
+    &.second-screen {
+      background: linear-gradient(135deg, #2c3e50 0%, #34495e 50%, #3498db 100%);
+      
+      .blank-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        text-align: center;
+
+        h2 {
+          font-size: 3rem;
+          margin: 0 0 20px 0;
+          font-weight: 300;
+          text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        p {
+          font-size: 1.5rem;
+          margin: 0;
+          opacity: 0.8;
+        }
+      }
+    }
+  }
 
   .search-section {
     margin-bottom: 40px;
@@ -466,6 +511,7 @@ export default {
         padding: 20px;
         backdrop-filter: blur(10px);
         overflow-y: auto;
+        max-height: calc(100vh - 200px);
 
         h2 {
           margin: 0 0 20px 0;
