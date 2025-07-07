@@ -1,8 +1,8 @@
 
 module.exports = {
-  name: 'Vue Extension',
+  name: 'MapTab',
   version: '1.0.0',
-  description: 'Vue.js Chrome Extension Template (wcer)',
+  description: 'A modern Chrome extension that transforms your new tab page into a productivity hub with integrated search engines, bookmarks, and recent posts.',
   author: 'yura',
   manifest_version: 2,
   icons: { '16': 'icons/16.png', '128': 'icons/128.png' },
@@ -21,7 +21,7 @@ module.exports = {
     'identity.email'
   ],
   browser_action: {
-    default_title: 'title',
+    default_title: 'MapTab - New Tab Extension',
     default_popup: 'pages/popup.html'
   },
   background: {
