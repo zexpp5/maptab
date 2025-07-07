@@ -16,6 +16,9 @@ module.exports = {
     'identity',
     'identity.email'
   ],
+  chrome_url_overrides: {
+    'newtab': 'pages/app.html'
+  },
   host_permissions: [
     '<all_urls>',
     '*://*/*'
