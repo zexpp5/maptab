@@ -13,7 +13,7 @@ const [backgroundConfig, mainConfig] = baseWebpack
 
 // Production config for background service worker
 const backgroundProdConfig = merge(backgroundConfig, {
-  devtool: false,
+  devtool: 'source-map',
   plugins: [
     new webpack.DefinePlugin({
       'process.env.NODE_ENV': '"production"'
@@ -23,7 +23,7 @@ const backgroundProdConfig = merge(backgroundConfig, {
 
 // Production config for main application
 const mainProdConfig = merge(mainConfig, {
-  devtool: '#cheap-module-eval-source-map',
+  devtool: 'source-map',
   module: {
     rules: styleLoaders({ extract: true, sourceMap: true })
   },
