@@ -1,8 +1,35 @@
 <template lang="pug">
   .maptab-container
-    .header
-      h1 MapTab
-      p Your Productivity Hub
+    .search-section
+      .search-container
+        .header-info
+          h1 MapTab
+          p Your Productivity Hub
+        input.search-input(
+          v-model="searchQuery"
+          @keyup.enter="searchGoogle"
+          placeholder="Search the web..."
+          type="text"
+        )
+        .search-buttons
+          button.search-btn.google(@click="searchGoogle")
+            i.el-icon-search
+            span Google
+          button.search-btn.kagi(@click="searchKagi")
+            i.el-icon-search
+            span Kagi
+          button.search-btn.perplexity(@click="searchPerplexity")
+            i.el-icon-search
+            span Perplexity
+          button.search-btn.xiaohongshu(@click="searchXiaohongshu")
+            i.el-icon-search
+            span 小红书
+          button.search-btn.taobao(@click="searchTaobao")
+            i.el-icon-search
+            span 淘宝
+          button.search-btn.zhihu(@click="searchZhihu")
+            i.el-icon-search
+            span 知乎
 
     .content
       .panes-container
@@ -76,7 +103,8 @@ export default {
   data: () => ({
     allBookmarks: [],
     allHistory: [],
-    expandedFolders: []
+    expandedFolders: [],
+    searchQuery: ''
   }),
 
   computed: {},
@@ -251,6 +279,42 @@ export default {
       } else {
         return date.toLocaleDateString()
       }
+    },
+
+    searchGoogle () {
+      if (this.searchQuery.trim()) {
+        chrome.tabs.create({ url: `https://www.google.com/search?q=${encodeURIComponent(this.searchQuery)}` })
+      }
+    },
+
+    searchKagi () {
+      if (this.searchQuery.trim()) {
+        chrome.tabs.create({ url: `https://kagi.com/search?q=${encodeURIComponent(this.searchQuery)}` })
+      }
+    },
+
+    searchPerplexity () {
+      if (this.searchQuery.trim()) {
+        chrome.tabs.create({ url: `https://www.perplexity.ai/?q=${encodeURIComponent(this.searchQuery)}` })
+      }
+    },
+
+    searchXiaohongshu () {
+      if (this.searchQuery.trim()) {
+        chrome.tabs.create({ url: `https://www.xiaohongshu.com/search_result?keyword=${encodeURIComponent(this.searchQuery)}` })
+      }
+    },
+
+    searchTaobao () {
+      if (this.searchQuery.trim()) {
+        chrome.tabs.create({ url: `https://s.taobao.com/search?q=${encodeURIComponent(this.searchQuery)}` })
+      }
+    },
+
+    searchZhihu () {
+      if (this.searchQuery.trim()) {
+        chrome.tabs.create({ url: `https://www.zhihu.com/search?q=${encodeURIComponent(this.searchQuery)}` })
+      }
     }
   }
 }
@@ -264,21 +328,125 @@ export default {
   min-height: 100vh;
   color: white;
 
-  .header {
-    text-align: center;
+  .search-section {
     margin-bottom: 40px;
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
 
-    h1 {
-      font-size: 3rem;
-      margin: 0;
-      font-weight: 300;
-      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-    }
+          .search-container {
+        display: flex;
+        gap: 20px;
+        align-items: center;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 15px;
+        padding: 20px;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
 
-    p {
-      font-size: 1.2rem;
-      margin: 10px 0 0 0;
-      opacity: 0.9;
+        .header-info {
+          display: flex;
+          flex-direction: column;
+          align-items: flex-start;
+          min-width: 200px;
+          flex-shrink: 0;
+
+          h1 {
+            font-size: 2rem;
+            margin: 0;
+            font-weight: 300;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            line-height: 1;
+          }
+
+          p {
+            font-size: 0.9rem;
+            margin: 4px 0 0 0;
+            opacity: 0.8;
+            line-height: 1.2;
+          }
+        }
+
+      .search-input {
+        flex: 1;
+        padding: 15px 20px;
+        border: none;
+        border-radius: 10px;
+        font-size: 1.1rem;
+        background: rgba(255, 255, 255, 0.9);
+        color: #333;
+        outline: none;
+        transition: all 0.3s ease;
+
+        &:focus {
+          background: white;
+          box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.3);
+        }
+
+        &::placeholder {
+          color: #666;
+        }
+      }
+
+      .search-buttons {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+
+        .search-btn {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          padding: 12px 16px;
+          border: none;
+          border-radius: 8px;
+          background: rgba(255, 255, 255, 0.15);
+          color: white;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          font-size: 0.9rem;
+          font-weight: 500;
+          white-space: nowrap;
+
+          &:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+          }
+
+          &:active {
+            transform: translateY(0);
+          }
+
+          i {
+            font-size: 14px;
+          }
+
+          &.google:hover {
+            background: linear-gradient(135deg, #4285f4, #34a853);
+          }
+
+          &.kagi:hover {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+          }
+
+          &.perplexity:hover {
+            background: linear-gradient(135deg, #06b6d4, #0891b2);
+          }
+
+          &.xiaohongshu:hover {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+          }
+
+          &.taobao:hover {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+          }
+
+          &.zhihu:hover {
+            background: linear-gradient(135deg, #10b981, #059669);
+          }
+        }
+      }
     }
   }
 
