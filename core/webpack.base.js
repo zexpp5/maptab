@@ -5,14 +5,39 @@ const {cssLoaders, htmlPage} = require('./tools')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 
 let resolve = dir => path.join(__dirname, '..', 'src', dir)
-module.exports = {
+
+// Create separate config for background service worker
+const backgroundConfig = {
+  target: 'webworker',
+  entry: {
+    background: resolve('./backend')
+  },
+  output: {
+    path: path.join(__dirname, '..', 'build'),
+    filename: 'js/[name].js'
+  },
+  resolve: {
+    extensions: ['.js', '.json']
+  },
+  module: {
+    rules: [
+      {
+        test: /\.js$/,
+        loader: 'babel-loader',
+        include: [path.join(__dirname, '..', 'src')]
+      }
+    ]
+  }
+}
+
+// Main config for other entries
+const mainConfig = {
   entry: {
     tab: resolve('./tab'),
     popup: resolve('./popup'),
     options: resolve('./options'),
     content: resolve('./content'), 
     devtools: resolve('./devtools'),
-    background: resolve('./backend'),
     panel: resolve('./devtools/panel'),
     inject: resolve('./content/inject'),
   },
@@ -90,11 +115,11 @@ module.exports = {
     ]
   },
   plugins: [
-    htmlPage('home', 'app', ['tab']),
-    htmlPage('popup', 'popup', ['popup']),
-    htmlPage('panel', 'panel', ['panel']),
-    htmlPage('devtools', 'devtools', ['devtools']),
-    htmlPage('options', 'options', ['options']),
+    htmlPage('home', 'app', ['vendor', 'manifest', 'tab']),
+    htmlPage('popup', 'popup', ['vendor', 'manifest', 'popup']),
+    htmlPage('panel', 'panel', ['vendor', 'manifest', 'panel']),
+    htmlPage('devtools', 'devtools', ['vendor', 'manifest', 'devtools']),
+    htmlPage('options', 'options', ['vendor', 'manifest', 'options']),
     htmlPage('background', 'background', ['background']),
     new CopyWebpackPlugin([{ from: path.join(__dirname, '..', 'static') }]),
     new ChromeReloadPlugin({
@@ -104,3 +129,6 @@ module.exports = {
   ],
   performance: { hints: false },
 }
+
+// Export both configs
+module.exports = [backgroundConfig, mainConfig]

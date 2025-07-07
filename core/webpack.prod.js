@@ -7,7 +7,22 @@ const CleanWebpackPlugin = require('clean-webpack-plugin')
 const ExtractTextPlugin = require('extract-text-webpack-plugin')
 const OptimizeCSSPlugin = require('optimize-css-assets-webpack-plugin')
 const {styleLoaders} = require('./tools')
-module.exports = merge(baseWebpack, {
+
+// Handle array of configurations
+const [backgroundConfig, mainConfig] = baseWebpack
+
+// Production config for background service worker
+const backgroundProdConfig = merge(backgroundConfig, {
+  devtool: false,
+  plugins: [
+    new webpack.DefinePlugin({
+      'process.env.NODE_ENV': '"production"'
+    })
+  ]
+})
+
+// Production config for main application
+const mainProdConfig = merge(mainConfig, {
   devtool: '#cheap-module-eval-source-map',
   module: {
     rules: styleLoaders({ extract: true, sourceMap: true })
@@ -45,3 +60,5 @@ module.exports = merge(baseWebpack, {
     })
   ]
 })
+
+module.exports = [backgroundProdConfig, mainProdConfig]
