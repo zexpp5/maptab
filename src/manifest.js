@@ -14,7 +14,8 @@ module.exports = {
     'storage',
     'notifications',
     'identity',
-    'identity.email'
+    'identity.email',
+    'bookmarks'
   ],
   chrome_url_overrides: {
     'newtab': 'pages/app.html'
