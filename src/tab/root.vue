@@ -37,6 +37,9 @@
               button.search-btn.zhihu(@click="searchZhihu")
                 i.el-icon-search
                 span 知乎
+              button.search-btn.x(@click="searchX")
+                i.el-icon-search
+                span X
             .ai-models
               button.search-btn.claude(@click="searchClaude")
                 i.el-icon-chat-dot-round
@@ -348,6 +351,12 @@ export default {
       }
     },
 
+    searchX () {
+      if (this.searchQuery.trim()) {
+        chrome.tabs.create({ url: `https://x.com/search?q=${encodeURIComponent(this.searchQuery)}&src=typed_query` })
+      }
+    },
+
     searchClaude () {
       if (this.searchQuery.trim()) {
         chrome.tabs.create({ url: `https://poe.com/Claude-Sonnet-4?prompt=${encodeURIComponent(this.searchQuery)}` })
@@ -580,6 +589,10 @@ export default {
 
           &.zhihu:hover {
             background: linear-gradient(135deg, #10b981, #059669);
+          }
+
+          &.x:hover {
+            background: linear-gradient(135deg, #000000, #1a1a1a);
           }
         }
 
